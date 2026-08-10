@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<title>Gabri Sparkle – Tooth Gem Designer</title>
+<style>
+  :root{
+    --bg:#12070a;
+    --panel:#210c12;
+    --panel2:#34111b;
+    --text:#fff8fa;
+    --muted:#d5aeb8;
+    --accent:#ff7fa5;
+    --accent2:#9b1738;
+    --danger:#ff5f73;
+    --ok:#f2b6c7;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:14px 16px;border-bottom:1px solid #2a2a34;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;background:rgba(15,15,19,.96);backdrop-filter:blur(10px);z-index:20}
+  header h1{font-size:17px;margin:0}
+  header .sub{font-size:12px;color:var(--muted)}
+  .app{display:grid;grid-template-columns:280px 1fr 270px;min-height:calc(100vh - 60px)}
+  aside{background:var(--panel);padding:14px;border-right:1px solid #2a2a34}
+  aside.right{border-right:none;border-left:1px solid #2a2a34}
+  .section{margin-bottom:18px}
+  .section h3{font-size:13px;margin:0 0 10px;color:#fff}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  button,.fileBtn{
+    appearance:none;border:0;border-radius:12px;background:var(--panel2);color:#fff;
+    padding:10px 12px;font-weight:700;font-size:13px;cursor:pointer;
+  }
+  button.primary,.fileBtn.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#111}
+  button.danger{background:#3a1d25;color:#ff9aaa}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .fileBtn input{display:none}
+  .palette{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .gemBtn{height:54px;padding:5px;display:flex;align-items:center;justify-content:center}
+  .gemPreview{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-size:30px;filter:drop-shadow(0 2px 6px rgba(255,255,255,.15))}
+  .main{padding:14px;display:flex;align-items:center;justify-content:center;min-width:0}
+  #stageWrap{
+    width:min(900px,100%);aspect-ratio:4/3;background:#0a0a0d;border:1px solid #2b2b35;border-radius:18px;
+    overflow:hidden;position:relative;touch-action:none;box-shadow:0 12px 45px rgba(0,0,0,.35)
+  }
+  #stage{
+    position:absolute;inset:0;width:100%;height:100%;
+    background:
+      radial-gradient(circle at 50% 38%,rgba(255,92,143,.22),transparent 28%),
+      radial-gradient(circle at 50% 55%,#42101f,#12070a 68%);
+    user-select:none;touch-action:none;overflow:hidden
+  }
+  #bgImg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+  #guide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76%;opacity:.23;pointer-events:none}
+  .gem{
+    position:absolute;left:50%;top:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    transform:translate(-50%,-50%) rotate(0deg);transform-origin:center center;cursor:grab;touch-action:none;
+  }
+  .gem.selected{outline:2px dashed var(--accent);outline-offset:6px;border-radius:50%}
+  .gem .inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:38px;line-height:1}
+  .gem svg{width:100%;height:100%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+  .control{margin-bottom:14px}
+  .control label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input[type=range]{width:100%}
+  .hint{font-size:12px;color:var(--muted);line-height:1.45}
+  .badge{display:inline-block;background:#2b2030;color:#f2b5ff;border-radius:99px;padding:5px 8px;font-size:11px;font-weight:700}
+  .price{font-size:26px;font-weight:900;margin:4px 0 0}
+  input[type=number]{width:100%;background:#101016;color:#fff;border:1px solid #31313c;border-radius:10px;padding:9px}
+  .clientInput{width:100%;background:#101016;color:#fff;border:1px solid #31313c;border-radius:10px;padding:10px}
+  footer{display:none}
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr}
+    aside{border-right:none;border-bottom:1px solid #2a2a34}
+    aside.right{border-left:none;border-top:1px solid #2a2a34}
+    .main{order:1}
+    aside.left{order:2}
+    aside.right{order:3}
+    .palette{grid-template-columns:repeat(8,1fr)}
+  }
+  @media (max-width:640px){
+    header{align-items:flex-start}
+    .palette{grid-template-columns:repeat(4,1fr)}
+    .main{padding:8px}
+    #stageWrap{border-radius:12px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>✦ GABRI <span style="font-family:Georgia,serif;font-style:italic;font-weight:500;color:#ff9db9">Sparkle</span> ✦</h1>
+    <div class="sub">TOOTH GEM SMILE DESIGNER</div>
+  </div>
+  <span class="badge" id="countBadge">0 gemme</span>
+</header>
+
+<div class="app">
+  <aside class="left">
+    <div class="section">
+      <h3>1. Foto cliente</h3>
+      <div class="row">
+        <label class="fileBtn primary">Carica foto<input id="fileInput" type="file" accept="image/*"></label>
+        <button id="removePhoto">Rimuovi</button>
+      </div>
+      <p class="hint">Puoi usare una foto frontale del sorriso. La foto resta sul dispositivo: questa versione non carica nulla online.</p>
+    </div>
+
+    <div class="section">
+      <h3>2. Aggiungi gemme</h3>
+      <div class="palette">
+        <button class="gemBtn" data-kind="diamond" title="Diamante"><span class="gemPreview">💎</span></button>
+        <button class="gemBtn" data-kind="round" title="Tonda"><span class="gemPreview">◉</span></button>
+        <button class="gemBtn" data-kind="heart" title="Cuore"><span class="gemPreview">♥</span></button>
+        <button class="gemBtn" data-kind="star" title="Stella"><span class="gemPreview">★</span></button>
+        <button class="gemBtn" data-kind="butterfly" title="Farfalla"><span class="gemPreview">🦋</span></button>
+        <button class="gemBtn" data-kind="moon" title="Luna"><span class="gemPreview">☾</span></button>
+        <button class="gemBtn" data-kind="cross" title="Croce"><span class="gemPreview">✦</span></button>
+        <button class="gemBtn" data-kind="drop" title="Goccia"><span class="gemPreview">♦</span></button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>3. Composizione</h3>
+      <div class="row">
+        <button id="duplicateBtn">Duplica</button>
+        <button id="deleteBtn" class="danger">Elimina</button>
+        <button id="clearBtn">Svuota tutto</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Cliente</h3>
+      <input id="clientName" class="clientInput" placeholder="Nome cliente">
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="stageWrap">
+      <div id="stage">
+        <img id="bgImg" alt="">
+        <svg id="guide" viewBox="0 0 800 500" aria-hidden="true">
+          <g fill="#fff" stroke="#ddd" stroke-width="2">
+            <path d="M110 220 Q115 120 175 100 Q215 92 235 135 Q245 172 230 220 Q210 280 170 285 Q125 278 110 220Z"/>
+            <path d="M225 205 Q235 105 300 95 Q350 92 365 140 Q370 175 356 225 Q340 288 292 290 Q240 280 225 205Z"/>
+            <path d="M350 202 Q360 92 430 92 Q495 95 505 202 Q505 280 432 292 Q360 280 350 202Z"/>
+            <path d="M495 205 Q510 105 575 95 Q625 92 635 205 Q620 280 570 290 Q515 288 495 205Z"/>
+            <path d="M625 220 Q640 120 700 100 Q745 102 760 220 Q745 278 705 285 Q650 280 625 220Z"/>
+          </g>
+        </svg>
+      </div>
+      <div style="text-align:center;margin-top:10px;color:#d5aeb8;font-size:12px;letter-spacing:.08em">
+        BRILLA. LA TUA PERSONALITÀ. ✦
+      </div>
+    </div>
+  </main>
+
+  <aside class="right">
+    <div class="section">
+      <h3>Gemma selezionata</h3>
+      <div class="control">
+        <label><span>Dimensione</span><span id="sizeVal">44 px</span></label>
+        <input id="sizeRange" type="range" min="14" max="120" value="44">
+      </div>
+      <div class="control">
+        <label><span>Rotazione</span><span id="rotVal">0°</span></label>
+        <input id="rotRange" type="range" min="-180" max="180" value="0">
+      </div>
+      <div class="control">
+        <label><span>Colore</span><span id="colorVal">Crystal</span></label>
+        <select id="colorSelect" class="clientInput">
+          <option value="#ffffff">Crystal</option>
+          <option value="#ffb3df">Pink</option>
+          <option value="#8fd3ff">Blue</option>
+          <option value="#b5ffcc">Green</option>
+          <option value="#ffd86b">Gold</option>
+          <option value="#d7d7e0">Silver</option>
+          <option value="#ff7070">Red</option>
+          <option value="#b993ff">Purple</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Preventivo rapido</h3>
+      <label class="hint">Prezzo per gemma (€)</label>
+      <input id="unitPrice" type="number" min="0" step="1" value="10">
+      <div class="price"><span id="totalPrice">€0</span></div>
+    </div>
+
+    <div class="section">
+      <h3>Esporta</h3>
+      <div class="row">
+        <button id="saveBtn" class="primary">Salva PNG</button>
+      </div>
+      <p class="hint">Il PNG include foto, gemme e nome cliente.</p>
+    </div>
+
+    <p class="hint">Tocca una gemma per selezionarla. Trascinala con un dito. Usa i cursori per dimensione e rotazione.</p>
+  </aside>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+const bgImg = document.getElementById('bgImg');
+const guide = document.getElementById('guide');
+const sizeRange = document.getElementById('sizeRange');
+const rotRange = document.getElementById('rotRange');
+const colorSelect = document.getElementById('colorSelect');
+const sizeVal = document.getElementById('sizeVal');
+const rotVal = document.getElementById('rotVal');
+const countBadge = document.getElementById('countBadge');
+const totalPrice = document.getElementById('totalPrice');
+const unitPrice = document.getElementById('unitPrice');
+
+let selected = null;
+let drag = null;
+let gemId = 0;
+
+function gemSVG(kind, color){
+  const common = `fill="${color}" stroke="rgba(255,255,255,.85)" stroke-width="2"`;
+  const c = color;
+  if(kind==='round') return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="39" ${common}/><path d="M50 12 L70 28 L88 50 L70 72 L50 88 L30 72 L12 50 L30 28 Z" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="3"/></svg>`;
+  if(kind==='heart') return `<svg viewBox="0 0 100 100"><path d="M50 85 C10 62 12 20 36 18 C47 17 54 24 50 31 C57 20 72 13 84 23 C103 42 84 68 50 85 Z" ${common}/></svg>`;
+  if(kind==='star') return `<svg viewBox="0 0 100 100"><path d="M50 7 L61 36 L93 38 L68 58 L76 90 L50 72 L24 90 L32 58 L7 38 L39 36 Z" ${common}/></svg>`;
+  if(kind==='moon') return `<svg viewBox="0 0 100 100"><path d="M71 14 C42 17 26 42 31 63 C36 83 54 91 75 82 C55 77 45 61 48 44 C51 29 59 20 71 14 Z" ${common}/></svg>`;
+  if(kind==='cross') return `<svg viewBox="0 0 100 100"><path d="M50 5 L59 38 L95 50 L59 62 L50 95 L41 62 L5 50 L41 38 Z" ${common}/></svg>`;
+  if(kind==='drop') return `<svg viewBox="0 0 100 100"><path d="M50 7 C66 29 82 47 82 65 C82 84 67 94 50 94 C33 94 18 84 18 65 C18 47 34 29 50 7 Z" ${common}/></svg>`;
+  if(kind==='butterfly') return `<svg viewBox="0 0 100 100"><path d="M48 49 C30 10 3 13 13 44 C17 58 31 62 48 53 Z" ${common}/><path d="M52 49 C70 10 97 13 87 44 C83 58 69 62 52 53 Z" ${common}/><path d="M48 55 C32 58 20 74 31 86 C40 94 47 79 50 61 Z" ${common}/><path d="M52 55 C68 58 80 74 69 86 C60 94 53 79 50 61 Z" ${common}/><rect x="47" y="38" width="6" height="33" rx="3" fill="#777"/></svg>`;
+  return `<svg viewBox="0 0 100 100"><polygon points="50,5 86,28 76,76 50,95 24,76 14,28" ${common}/><polyline points="14,28 50,40 86,28 76,76 50,40 24,76 14,28" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="3"/></svg>`;
+}
+
+function addGem(kind){
+  const el = document.createElement('div');
+  el.className = 'gem';
+  el.dataset.id = ++gemId;
+  el.dataset.kind = kind;
+  el.dataset.color = '#ffffff';
+  el.dataset.rot = '0';
+  el.dataset.size = '44';
+  el.style.left = (45 + Math.random()*10) + '%';
+  el.style.top = (42 + Math.random()*10) + '%';
+  const inner = document.createElement('div');
+  inner.className = 'inner';
+  inner.innerHTML = gemSVG(kind, '#ffffff');
+  el.appendChild(inner);
+  stage.appendChild(el);
+  bindGem(el);
+  selectGem(el);
+  updateCounts();
+}
+
+function bindGem(el){
+  el.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    selectGem(el);
+    const rect = stage.getBoundingClientRect();
+    const currentLeft = parseFloat(el.style.left) / 100 * rect.width;
+    const currentTop = parseFloat(el.style.top) / 100 * rect.height;
+    drag = {pointerId:e.pointerId, offsetX:e.clientX - rect.left - currentLeft, offsetY:e.clientY - rect.top - currentTop};
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!drag || drag.pointerId!==e.pointerId) return;
+    const rect = stage.getBoundingClientRect();
+    let x = e.clientX - rect.left - drag.offsetX;
+    let y = e.clientY - rect.top - drag.offsetY;
+    x = Math.max(0, Math.min(rect.width, x));
+    y = Math.max(0, Math.min(rect.height, y));
+    el.style.left = (x/rect.width*100)+'%';
+    el.style.top = (y/rect.height*100)+'%';
+  });
+  el.addEventListener('pointerup', e=>{ if(drag?.pointerId===e.pointerId) drag=null; });
+  el.addEventListener('pointercancel', ()=>drag=null);
+}
+
+function selectGem(el){
+  if(selected) selected.classList.remove('selected');
+  selected = el;
+  if(selected){
+    selected.classList.add('selected');
+    sizeRange.value = selected.dataset.size;
+    rotRange.value = selected.dataset.rot;
+    colorSelect.value = selected.dataset.color;
+    syncControls();
+  }
+}
+function syncTransform(){
+  if(!selected) return;
+  const size = +selected.dataset.size;
+  const rot = +selected.dataset.rot;
+  selected.style.width = size+'px';
+  selected.style.height = size+'px';
+  selected.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+}
+function syncControls(){
+  sizeVal.textContent = (selected?selected.dataset.size:sizeRange.value)+' px';
+  rotVal.textContent = (selected?selected.dataset.rot:rotRange.value)+'°';
+}
+function updateCounts(){
+  const count = stage.querySelectorAll('.gem').length;
+  countBadge.textContent = `${count} ${count===1?'gemma':'gemme'}`;
+  const price = (+unitPrice.value || 0)*count;
+  totalPrice.textContent = '€'+price.toFixed(0);
+}
+document.querySelectorAll('.gemBtn').forEach(b=>b.addEventListener('click',()=>addGem(b.dataset.kind)));
+
+sizeRange.addEventListener('input', ()=>{
+  if(!selected) return;
+  selected.dataset.size = sizeRange.value;
+  syncTransform(); syncControls();
+});
+rotRange.addEventListener('input', ()=>{
+  if(!selected) return;
+  selected.dataset.rot = rotRange.value;
+  syncTransform(); syncControls();
+});
+colorSelect.addEventListener('change', ()=>{
+  if(!selected) return;
+  selected.dataset.color = colorSelect.value;
+  selected.querySelector('.inner').innerHTML = gemSVG(selected.dataset.kind, colorSelect.value);
+});
+unitPrice.addEventListener('input', updateCounts);
+
+document.getElementById('duplicateBtn').addEventListener('click', ()=>{
+  if(!selected) return;
+  const clone = selected.cloneNode(true);
+  clone.dataset.id = ++gemId;
+  clone.style.left = (parseFloat(selected.style.left)+3)+'%';
+  clone.style.top = (parseFloat(selected.style.top)+3)+'%';
+  clone.classList.remove('selected');
+  stage.appendChild(clone);
+  bindGem(clone); selectGem(clone); updateCounts();
+});
+document.getElementById('deleteBtn').addEventListener('click', ()=>{
+  if(!selected) return;
+  selected.remove(); selected=null; updateCounts();
+});
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  stage.querySelectorAll('.gem').forEach(g=>g.remove()); selected=null; updateCounts();
+});
+stage.addEventListener('pointerdown', e=>{
+  if(e.target===stage || e.target===bgImg || e.target===guide){
+    if(selected) selected.classList.remove('selected');
+    selected=null;
+  }
+});
+
+document.getElementById('fileInput').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    bgImg.src = ev.target.result;
+    guide.style.display='none';
+  };
+  reader.readAsDataURL(file);
+});
+document.getElementById('removePhoto').addEventListener('click', ()=>{
+  bgImg.removeAttribute('src');
+  guide.style.display='';
+  document.getElementById('fileInput').value='';
+});
+
+function svgToImage(svg){
+  return new Promise((resolve,reject)=>{
+    const blob = new Blob([svg],{type:'image/svg+xml'});
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};
+    img.onerror=reject;
+    img.src=url;
+  });
+}
+
+document.getElementById('saveBtn').addEventListener('click', async ()=>{
+  const rect = stage.getBoundingClientRect();
+  const W = 1200, H = 900;
+  const canvas = document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle='#101014'; ctx.fillRect(0,0,W,H);
+
+  if(bgImg.src){
+    const img = new Image();
+    img.src=bgImg.src;
+    await img.decode().catch(()=>{});
+    const ir=img.width/img.height, cr=W/H;
+    let dw,dh,dx,dy;
+    if(ir>cr){dw=W; dh=W/ir; dx=0; dy=(H-dh)/2}
+    else{dh=H; dw=H*ir; dy=0; dx=(W-dw)/2}
+    ctx.drawImage(img,dx,dy,dw,dh);
+  } else {
+    ctx.fillStyle='#262630'; ctx.fillRect(0,0,W,H);
+  }
+
+  for(const g of stage.querySelectorAll('.gem')){
+    const x=parseFloat(g.style.left)/100*W;
+    const y=parseFloat(g.style.top)/100*H;
+    const s=parseFloat(g.dataset.size)/rect.width*W;
+    const rot=parseFloat(g.dataset.rot)*Math.PI/180;
+    const svg = gemSVG(g.dataset.kind,g.dataset.color);
+    const img = await svgToImage(svg);
+    ctx.save();
+    ctx.translate(x,y); ctx.rotate(rot);
+    ctx.drawImage(img,-s/2,-s/2,s,s);
+    ctx.restore();
+  }
+
+  const name=document.getElementById('clientName').value.trim();
+  if(name){
+    ctx.fillStyle='rgba(0,0,0,.65)';
+    ctx.fillRect(0,H-74,W,74);
+    ctx.fillStyle='#fff'; ctx.font='bold 30px system-ui'; ctx.fillText(name,28,H-28);
+    ctx.textAlign='right'; ctx.fillText('GABRI SPARKLE ✦',W-28,H-28); ctx.textAlign='left';
+  }
+
+  canvas.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=(name?name.replace(/\s+/g,'_')+'_':'')+'tooth_gems_design.png';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  },'image/png',0.95);
+});
+</script>
+</body>
+</html>
