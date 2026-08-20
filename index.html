@@ -6,343 +6,636 @@
 <title>Gabri Sparkle — Smile Designer</title>
 <style>
 :root{
-  --wine:#8f1e2c;--wine2:#b62b40;--cream:#fffaf6;--ink:#231719;
-  --muted:#7f6d71;--line:#e6d8da;--card:#fffdfb;
+  --ivory:#f6efe8;
+  --cream:#fbf7f2;
+  --wine:#8f1e2c;
+  --wine2:#b52a3c;
+  --ink:#211719;
+  --muted:#79686b;
+  --line:#dbcacb;
+  --panel:#fffaf7;
+  --shadow:0 18px 55px rgba(89,31,40,.13);
 }
-*{box-sizing:border-box}
-body{
-  margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:linear-gradient(180deg,#fffaf6,#f7ece7);color:var(--ink)
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:
+radial-gradient(circle at 15% 0%,rgba(181,42,60,.10),transparent 28%),
+linear-gradient(180deg,#fffaf6,#f4ebe5);
+color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
 header{
-  position:sticky;top:0;z-index:10;padding:14px 16px;background:rgba(255,250,246,.92);
-  backdrop-filter:blur(16px);border-bottom:1px solid var(--line);
-  display:flex;justify-content:space-between;align-items:center
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 18px;background:rgba(255,250,246,.9);backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(143,30,44,.12)
 }
-.logo{font-family:Georgia,serif;letter-spacing:.12em;color:var(--wine);font-size:22px}
-.sub{font-size:10px;letter-spacing:.16em;color:var(--muted)}
-.count{font-size:12px;font-weight:800;color:var(--wine);background:#f4e5e8;padding:7px 10px;border-radius:999px}
-.wrap{display:grid;grid-template-columns:300px minmax(0,1fr) 310px;min-height:calc(100vh - 66px)}
-.side{padding:14px;border-right:1px solid var(--line)}
-.side.right{border-right:0;border-left:1px solid var(--line)}
-.main{padding:14px;min-width:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px;margin-bottom:12px}
-.card h3{margin:0 0 10px;color:var(--wine);font-family:Georgia,serif;font-size:15px}
-button,label.file,select,input{
-  border:1px solid #ddcdd0;background:#fff;color:var(--ink);border-radius:12px;
-  padding:10px 11px;font-size:13px;font-weight:700
+.brand .name{
+  font-family:Georgia,serif;font-size:25px;letter-spacing:.12em;color:var(--wine)
 }
-button,label.file{cursor:pointer}
-.primary{border:0;background:linear-gradient(135deg,var(--wine),var(--wine2));color:#fff}
-.soft{background:#f8ecee;color:var(--wine)}
-label.file input{display:none}
-.row{display:flex;gap:7px;flex-wrap:wrap}
+.brand .sub{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.count{
+  padding:8px 12px;border-radius:999px;background:#f5e6e8;color:var(--wine);
+  border:1px solid #e7cdd1;font-weight:800;font-size:12px
+}
+.layout{display:grid;grid-template-columns:310px minmax(0,1fr) 320px;min-height:calc(100vh - 69px)}
+.panel{padding:16px;border-right:1px solid rgba(143,30,44,.12)}
+.panel.right{border-right:none;border-left:1px solid rgba(143,30,44,.12)}
+.main{padding:18px;min-width:0}
+.card{
+  background:rgba(255,250,247,.94);
+  border:1px solid rgba(143,30,44,.13);
+  border-radius:22px;padding:14px;margin-bottom:14px;
+  box-shadow:0 10px 30px rgba(107,54,62,.05)
+}
+.card h3{margin:0 0 10px;font-family:Georgia,serif;font-size:15px;color:var(--wine)}
+.muted{font-size:12px;line-height:1.45;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+button,.fileBtn,select,input[type=text],input[type=number]{
+  border:1px solid #d9c8ca;border-radius:13px;background:#fff;color:var(--ink);
+  padding:10px 12px;font-weight:750;font-size:13px
+}
+button,.fileBtn{cursor:pointer}
+.primary{
+  background:linear-gradient(135deg,var(--wine),var(--wine2));
+  color:white;border:none;box-shadow:0 8px 20px rgba(143,30,44,.18)
+}
+.soft{background:#f8ecee;color:var(--wine);border-color:#ebd5d8}
+.danger{background:#fff2f2;color:#a01926;border-color:#efc7cc}
+.fileBtn input{display:none}
 #stageWrap{
-  position:relative;width:min(1050px,100%);aspect-ratio:16/10;margin:auto;
-  border-radius:24px;overflow:hidden;background:#1a1114;border:1px solid #d8c5c9;
-  box-shadow:0 20px 55px rgba(86,30,39,.15)
+  position:relative;width:min(1080px,100%);aspect-ratio:16/10;margin:auto;
+  border-radius:28px;overflow:hidden;background:
+  radial-gradient(circle at 50% 40%,rgba(181,42,60,.09),transparent 35%),#171215;
+  box-shadow:var(--shadow);border:1px solid rgba(143,30,44,.15)
 }
 #canvas{width:100%;height:100%;display:block;touch-action:none}
-.pill{
-  position:absolute;top:12px;left:12px;background:rgba(255,250,247,.9);color:#5a3c43;
-  padding:7px 10px;border-radius:999px;font-size:12px;pointer-events:none
+.topbar{
+  position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;
+  pointer-events:none
 }
-.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
-.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.gem{height:56px;font-size:25px;background:#fff}
-.control{margin:10px 0}
-.control label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+.pill{
+  padding:8px 11px;border-radius:999px;background:rgba(255,250,247,.88);
+  border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(10px);
+  color:#50383e;font-size:12px;box-shadow:0 8px 25px rgba(0,0,0,.08)
+}
+.toolbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px}
+.control{margin:12px 0}
+.control label{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:6px}
 input[type=range]{width:100%;accent-color:var(--wine)}
-.discount{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.discount button.active{background:var(--wine);color:#fff}
-.kpi{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee3e5;font-size:12px}
-.total{font-family:Georgia,serif;color:var(--wine);font-size:32px;font-weight:700;margin-top:8px}
-.small{font-size:12px;line-height:1.45;color:var(--muted)}
-#status{margin-top:7px;font-size:12px;color:var(--muted)}
-@media(max-width:950px){
-  .wrap{grid-template-columns:1fr}.main{order:1}.side{order:2;border:0}.side.right{order:3;border:0}
+.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.gemBtn{
+  height:58px;padding:0;border-radius:16px;background:#fff;border:1px solid #ead9da;
+  display:flex;align-items:center;justify-content:center
+}
+.gemBtn svg{width:28px;height:28px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.13))}
+.discountBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.discountBtns button.active{background:var(--wine);color:#fff;border-color:var(--wine)}
+.kpi{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee0e2;font-size:12px}
+.total{font-family:Georgia,serif;font-size:34px;color:var(--wine);font-weight:700;margin-top:8px}
+.warning{
+  padding:10px 12px;border-radius:14px;background:#fff7e9;border:1px solid #efd8a8;
+  color:#765619;font-size:12px;line-height:1.4
+}
+
+.gemThumb{position:relative;height:72px;padding:6px;border-radius:16px;background:#fff;border:1px solid #ead9da;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.gemThumb img{max-width:54px;max-height:54px;object-fit:contain;pointer-events:none}
+.gemThumb .gemLabel{position:absolute;left:4px;right:4px;bottom:3px;padding:2px 4px;border-radius:8px;background:rgba(255,255,255,.86);font-size:9px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gemThumb .removeLib{position:absolute;right:3px;top:3px;width:22px;height:22px;padding:0;border-radius:999px;background:#fff2f2;color:#a01926;font-size:12px;z-index:2}
+
+#dropZone{
+  border:1.5px dashed #d7afb6;border-radius:16px;padding:13px;text-align:center;background:#fff8f8;
+  transition:.2s
+}
+#dropZone.drag{background:#f8e7ea;border-color:var(--wine)}
+.photoActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#photoStatus{margin-top:8px;font-size:11px;color:var(--muted)}
+@media(max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .panel,.panel.right{border:0}
+  .main{order:1}.panel{order:2}.panel.right{order:3}
 }
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <div class="logo">GABRI SPARKLE</div>
-    <div class="sub">DENTAL JEWELLERY & SMILE DESIGNER</div>
+  <div class="brand">
+    <div class="name">GABRI SPARKLE</div>
+    <div class="sub">Dental Jewellery & Smile Designer</div>
   </div>
-  <div class="count" id="count">0 gemme</div>
+  <div class="count" id="gemCount">0 gemme</div>
 </header>
 
-<div class="wrap">
-  <aside class="side">
+<div class="layout">
+  <aside class="panel">
     <div class="card">
       <h3>Foto cliente</h3>
-      <label class="file primary">Scegli foto
-        <input id="photoInput" type="file" accept="image/*">
-      </label>
-      <button id="removePhoto" class="soft">Rimuovi</button>
-      <div id="status">Nessuna foto caricata.</div>
-    </div>
-
-    <div class="card">
-      <h3>Gemme</h3>
-      <div class="palette">
-        <button class="gem" data-type="diamond">💎</button>
-        <button class="gem" data-type="circle">◉</button>
-        <button class="gem" data-type="heart">♥</button>
-        <button class="gem" data-type="star">★</button>
-        <button class="gem" data-type="moon">☾</button>
-        <button class="gem" data-type="sparkle">✦</button>
-        <button class="gem" data-type="kite">◆</button>
-        <button class="gem" data-type="butterfly">🦋</button>
+      <div id="dropZone">
+        <div style="font-size:28px;margin-bottom:4px">✦</div>
+        <div style="font-weight:800;color:var(--wine)">Inserisci una foto del sorriso</div>
+        <div class="muted" style="margin:4px 0 10px">Da Foto, File o trascinando l'immagine qui</div>
+        <div class="photoActions">
+          <label class="fileBtn primary">Scegli foto
+            <input id="photoInput" type="file" accept="image/*,.heic,.heif">
+          </label>
+          <button id="removePhoto" class="soft">Rimuovi</button>
+        </div>
       </div>
-      <div style="height:8px"></div>
-      <label class="file">+ Gemma personalizzata
-        <input id="customGemInput" type="file" accept="image/*">
-      </label>
-      <div class="small" style="margin-top:7px">Per le gemme personalizzate usa PNG con sfondo trasparente quando possibile.</div>
+      <div id="photoStatus">Nessuna foto caricata.</div>
     </div>
 
     <div class="card">
-      <h3>Vista</h3>
+      <h3>Le mie gemme</h3>
+      <div id="gemLibrary" class="palette"></div>
+      <div id="emptyLibrary" class="muted" style="margin:6px 0 10px">
+        Nessuna gemma salvata. Aggiungi le tue immagini qui sotto.
+      </div>
+
+      <label class="fileBtn primary" style="display:block;text-align:center">+ Aggiungi gemma
+        <input id="customGemInput" type="file" accept="image/*,.heic,.heif">
+      </label>
+
+      <div id="newGemForm" style="display:none;margin-top:10px">
+        <input id="newGemName" type="text" placeholder="Nome gemma" style="width:100%;margin-bottom:8px">
+        <select id="newGemType" style="width:100%;margin-bottom:8px">
+          <option value="swarovski">Swarovski standard</option>
+          <option value="special">Stella / Cuore</option>
+          <option value="gold">Oro</option>
+          <option value="butterfly">Farfalla</option>
+        </select>
+        <div class="row">
+          <button id="saveNewGem" class="primary" type="button">Salva nella libreria</button>
+          <button id="cancelNewGem" type="button">Annulla</button>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:7px">
+        Le gemme salvate restano disponibili su questo dispositivo/browser.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Vista sorriso</h3>
       <div class="row">
-        <button id="fit">Adatta</button>
-        <button id="zin">Zoom +</button>
-        <button id="zout">Zoom −</button>
+        <button id="fitBtn">Adatta</button>
+        <button id="zoomIn">Zoom +</button>
+        <button id="zoomOut">Zoom −</button>
+        <button id="resetView">Reset</button>
       </div>
-      <div class="small" style="margin-top:8px">Da una foto singola non si ottiene un vero 3D odontoiatrico. Qui lavoriamo come simulatore estetico.</div>
+      <div class="warning" style="margin-top:10px">
+        L'effetto 3D da una sola foto è solo una simulazione estetica. Per un modello 3D reale servono scansione intraorale o STL.
+      </div>
     </div>
   </aside>
 
   <main class="main">
     <div id="stageWrap">
       <canvas id="canvas"></canvas>
-      <div class="pill">Trascina le gemme sul sorriso</div>
+      <div class="topbar">
+        <div class="pill">Trascina le gemme sul dente</div>
+        <div class="pill">Gabri Sparkle Studio</div>
+      </div>
     </div>
-    <div class="tools">
-      <button id="dup">Duplica</button>
-      <button id="del">Elimina</button>
-      <button id="clear">Svuota</button>
-      <button id="export" class="primary">Esporta PNG</button>
+    <div class="toolbar">
+      <button id="duplicateBtn">Duplica</button>
+      <button id="deleteBtn">Elimina</button>
+      <button id="clearBtn">Svuota</button>
+      <button id="savePng" class="primary">Esporta PNG</button>
     </div>
   </main>
 
-  <aside class="side right">
+  <aside class="panel right">
     <div class="card">
-      <h3>Gemma selezionata</h3>
+      <h3>Modifica gemma selezionata</h3>
       <div class="control">
-        <label><span>Dimensione</span><span id="sizeText">—</span></label>
-        <input id="size" type="range" min="2" max="120" value="18" step="1">
+        <label><span>Dimensione</span><span id="sizeVal">—</span></label>
+        <input id="sizeRange" type="range" min="4" max="160" value="20" step="1">
       </div>
       <div class="control">
-        <label><span>Rotazione</span><span id="rotText">—</span></label>
-        <input id="rot" type="range" min="-180" max="180" value="0" step="1">
+        <label><span>Rotazione</span><span id="rotVal">—</span></label>
+        <input id="rotRange" type="range" min="-180" max="180" value="0" step="1">
       </div>
       <div class="control">
-        <label><span>Opacità</span><span id="opaText">—</span></label>
-        <input id="opa" type="range" min="20" max="100" value="100">
+        <label><span>Opacità</span><span id="opaVal">—</span></label>
+        <input id="opaRange" type="range" min="20" max="100" value="100">
       </div>
     </div>
 
     <div class="card">
-      <h3>Preventivo</h3>
-      <select id="price" style="width:100%">
-        <option value="0">Seleziona progetto…</option>
-        <option value="60">1 gemma Swarovski — €60</option>
-        <option value="80">2 gemme — €80</option>
-        <option value="100">3 gemme — €100</option>
-        <option value="120">4 gemme — €120</option>
-        <option value="150">Progetto Window — €150</option>
-        <option value="200">2 denti Window — €200</option>
-        <option value="180">Dente pieno — €180</option>
-        <option value="230">2 denti pieni — €230</option>
-        <option value="70">1 stella/cuoricino — €70</option>
-        <option value="100">2 stelle/cuoricini — €100</option>
-        <option value="160">2 gemme oro — €160</option>
-        <option value="120">Progetto farfalla — €120</option>
-        <option value="140">1 gemma oro — €140</option>
-      </select>
+      <h3>Cliente</h3>
+      <input id="clientName" type="text" placeholder="Nome cliente" style="width:100%">
+    </div>
+
+    <div class="card">
+      <h3>Preventivo automatico</h3>
 
       <div class="control">
-        <label><span>Prezzo personalizzato</span><span>€</span></label>
-        <input id="customPrice" type="number" min="0" placeholder="es. 135" style="width:100%">
+        <label><span>Composizione speciale</span><span>facoltativa</span></label>
+        <select id="projectMode" style="width:100%">
+          <option value="auto">Automatico dalle gemme</option>
+          <option value="window1">Progetto Window (fino a 4 gemme) — €150</option>
+          <option value="window2">2 denti Window — €200</option>
+          <option value="full1">Dente pieno — €180</option>
+          <option value="full2">2 denti pieni — €230</option>
+        </select>
       </div>
 
-      <div class="discount">
-        <button data-d="0" class="active">0%</button>
-        <button data-d="10">−10%</button>
-        <button data-d="20">−20%</button>
-        <button data-d="30">−30%</button>
+      <div id="priceBreakdown" class="muted" style="margin:10px 0">
+        Aggiungi gemme per calcolare il preventivo.
       </div>
 
-      <div class="kpi"><span>Prezzo base</span><b id="base">€0</b></div>
-      <div class="kpi"><span>Sconto</span><b id="off">€0</b></div>
-      <div class="total" id="total">€0</div>
+      <div class="discountBtns">
+        <button data-discount="0" class="active">0%</button>
+        <button data-discount="10">−10%</button>
+        <button data-discount="20">−20%</button>
+        <button data-discount="30">−30%</button>
+      </div>
+
+      <div class="kpi"><span>Prezzo base</span><b id="basePrice">€0</b></div>
+      <div class="kpi"><span>Sconto</span><b id="discountText">−€0</b></div>
+      <div class="total" id="totalPrice">€0</div>
     </div>
   </aside>
 </div>
 
 <script>
-const c=document.getElementById('canvas'),ctx=c.getContext('2d');
 const $=id=>document.getElementById(id);
-let dpr=Math.max(1,Math.min(2,devicePixelRatio||1));
-let img=null,imgScale=1,imgX=0,imgY=0;
-let gems=[],sel=-1,drag=null,discount=0;
+const canvas=$('canvas'),ctx=canvas.getContext('2d');
+let DPR=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+let photo=null,photoScale=1,photoX=0,photoY=0;
+let gems=[],selected=-1,drag=null,discount=0;
+let gemLibrary=[];
+let pendingGemData=null;
 
 function resize(){
-  const r=c.getBoundingClientRect();
-  c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0); draw();
+  const r=canvas.getBoundingClientRect();
+  canvas.width=Math.round(r.width*DPR);
+  canvas.height=Math.round(r.height*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  draw();
 }
 addEventListener('resize',resize);
 
-function fit(){
-  if(!img)return;
-  const w=c.clientWidth,h=c.clientHeight;
-  imgScale=Math.max(w/img.width,h/img.height);
-  imgX=(w-img.width*imgScale)/2;
-  imgY=(h-img.height*imgScale)/2;
-  draw();
+function showStatus(t){$('photoStatus').textContent=t}
+
+function readImageFile(file,cb){
+  if(!file){showStatus('Nessun file selezionato.');return}
+  if(!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name||'')){
+    showStatus('Il file scelto non sembra essere un’immagine.');return
+  }
+  showStatus('Caricamento foto…');
+  const reader=new FileReader();
+  reader.onerror=()=>showStatus('Non riesco a leggere questa foto. Prova una JPG o PNG.');
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{showStatus('Foto caricata ✓');cb(img)};
+    img.onerror=()=>showStatus('Formato non visualizzabile qui. Se è HEIC, esportala come JPG.');
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
-function loadImage(file,cb){
-  if(!file)return;
-  $('status').textContent='Caricamento…';
-  const url=URL.createObjectURL(file);
-  const im=new Image();
-  im.onload=()=>{
-    URL.revokeObjectURL(url);
-    $('status').textContent='Foto caricata ✓';
-    cb(im);
-  };
-  im.onerror=()=>{
-    URL.revokeObjectURL(url);
-    const fr=new FileReader();
-    fr.onload=()=>{
-      const im2=new Image();
-      im2.onload=()=>{$('status').textContent='Foto caricata ✓';cb(im2)};
-      im2.onerror=()=>{$('status').textContent='Formato non leggibile. Prova JPG/PNG.'};
-      im2.src=fr.result;
-    };
-    fr.readAsDataURL(file);
-  };
-  im.src=url;
+function fitPhoto(){
+  if(!photo)return;
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  photoScale=Math.max(w/photo.width,h/photo.height);
+  photoX=(w-photo.width*photoScale)/2;
+  photoY=(h-photo.height*photoScale)/2;
+  draw();
 }
 
 $('photoInput').addEventListener('change',e=>{
   const f=e.target.files && e.target.files[0];
-  loadImage(f,im=>{img=im;fit()});
+  readImageFile(f,img=>{photo=img;fitPhoto()});
   e.target.value='';
 });
-$('removePhoto').onclick=()=>{img=null;$('status').textContent='Nessuna foto caricata.';draw()};
 
-function placeholder(w,h){
-  ctx.fillStyle='#1a1114';ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='rgba(255,244,240,.24)';
-  [-2,-1,0,1,2].forEach(i=>{
-    const s=i===0?1.14:(Math.abs(i)===1?1.07:1);
-    ctx.beginPath();ctx.ellipse(w/2+i*88,h/2,50*s,70*s,0,0,Math.PI*2);ctx.fill();
-  });
+const dz=$('dropZone');
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));
+dz.addEventListener('drop',e=>{
+  const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  readImageFile(f,img=>{photo=img;fitPhoto()});
+});
+
+$('removePhoto').onclick=()=>{photo=null;showStatus('Nessuna foto caricata.');draw()};
+
+function drawPlaceholder(w,h){
+  ctx.fillStyle='#171215';ctx.fillRect(0,0,w,h);
+  const g=ctx.createRadialGradient(w*.5,h*.45,20,w*.5,h*.45,w*.55);
+  g.addColorStop(0,'rgba(181,42,60,.18)');g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='rgba(255,244,240,.28)';
+  [-2,-1,0,1,2].forEach((i)=>{
+    const s=i===0?1.14:(Math.abs(i)===1?1.08:1);
+    ctx.beginPath();ctx.ellipse(w/2+i*90,h/2,52*s,73*s,0,0,Math.PI*2);ctx.fill()
+  })
 }
 
 function draw(){
-  const w=c.clientWidth,h=c.clientHeight;
+  const w=canvas.clientWidth,h=canvas.clientHeight;
   ctx.clearRect(0,0,w,h);
-  if(img)ctx.drawImage(img,imgX,imgY,img.width*imgScale,img.height*imgScale);
-  else placeholder(w,h);
-  gems.forEach((g,i)=>drawGem(g,i===sel));
-  $('count').textContent=`${gems.length} gemm${gems.length===1?'a':'e'}`;
+  if(photo){
+    ctx.save();
+    ctx.filter='contrast(1.03) saturate(1.02)';
+    ctx.drawImage(photo,photoX,photoY,photo.width*photoScale,photo.height*photoScale);
+    ctx.restore();
+  }else drawPlaceholder(w,h);
+  gems.forEach((g,i)=>drawGem(g,i===selected));
+  $('gemCount').textContent=`${gems.length} gemm${gems.length===1?'a':'e'}`;
 }
 
-function drawGem(g,selected){
-  ctx.save();ctx.translate(g.x,g.y);ctx.rotate(g.r*Math.PI/180);ctx.globalAlpha=g.o;
-  ctx.shadowColor='rgba(255,255,255,.7)';ctx.shadowBlur=Math.max(2,g.s*.18);
-  if(g.image) ctx.drawImage(g.image,-g.s/2,-g.s/2,g.s,g.s);
-  else{
-    ctx.fillStyle='#fff';ctx.strokeStyle='#cbbdc1';ctx.lineWidth=Math.max(1,g.s*.06);
-    ctx.font=`${g.s}px Georgia`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const map={diamond:'◆',circle:'◉',heart:'♥',star:'★',moon:'☾',sparkle:'✦',kite:'◆',butterfly:'🦋'};
-    ctx.fillText(map[g.t]||'✦',0,0);
+function drawSvgShape(g){
+  const s=g.size;
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c6b9bd';ctx.lineWidth=Math.max(1,s*.08);
+  ctx.beginPath();
+  if(g.type==='circle'){ctx.arc(0,0,s*.42,0,Math.PI*2)}
+  else if(g.type==='heart'){
+    const k=s/50;ctx.moveTo(0,18*k);ctx.bezierCurveTo(-30*k,-2*k,-24*k,-25*k,0,-12*k);ctx.bezierCurveTo(24*k,-25*k,30*k,-2*k,0,18*k)
+  } else if(g.type==='star'){
+    for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=(i%2?0.20:0.46)*s;const x=Math.cos(a)*r,y=Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}
+    ctx.closePath();
+  } else if(g.type==='moon'){
+    ctx.arc(0,0,s*.42,-1.2,1.2,false);ctx.arc(s*.16,0,s*.34,1.35,-1.35,true);ctx.closePath();
+  } else if(g.type==='sparkle'){
+    ctx.moveTo(0,-s*.48);ctx.lineTo(s*.12,-s*.12);ctx.lineTo(s*.48,0);ctx.lineTo(s*.12,s*.12);ctx.lineTo(0,s*.48);ctx.lineTo(-s*.12,s*.12);ctx.lineTo(-s*.48,0);ctx.lineTo(-s*.12,-s*.12);ctx.closePath();
+  } else if(g.type==='kite'){
+    ctx.moveTo(0,-s*.48);ctx.lineTo(s*.34,0);ctx.lineTo(0,s*.48);ctx.lineTo(-s*.34,0);ctx.closePath();
+  } else if(g.type==='diamond'){
+    ctx.moveTo(0,-s*.46);ctx.lineTo(s*.43,-s*.15);ctx.lineTo(s*.25,s*.40);ctx.lineTo(-s*.25,s*.40);ctx.lineTo(-s*.43,-s*.15);ctx.closePath();
+  } else {
+    ctx.moveTo(0,0);ctx.arc(0,0,s*.35,0,Math.PI*2)
   }
-  if(selected){
-    ctx.shadowBlur=0;ctx.strokeStyle='#d73462';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
-    ctx.strokeRect(-g.s*.65,-g.s*.65,g.s*1.3,g.s*1.3);
+  ctx.fill();ctx.stroke();
+}
+
+function drawGem(g,sel){
+  ctx.save();ctx.translate(g.x,g.y);ctx.rotate(g.r*Math.PI/180);ctx.globalAlpha=g.opacity;
+  ctx.shadowColor='rgba(255,255,255,.75)';ctx.shadowBlur=Math.max(3,g.size*.18);
+  if(g.img) ctx.drawImage(g.img,-g.size/2,-g.size/2,g.size,g.size);
+  else drawSvgShape(g);
+  ctx.shadowBlur=0;
+  if(sel){
+    ctx.strokeStyle='#d73462';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.strokeRect(-g.size*.65,-g.size*.65,g.size*1.3,g.size*1.3)
   }
   ctx.restore();
 }
 
-function addGem(type,image=null){
-  gems.push({t:type,image,x:c.clientWidth/2,y:c.clientHeight/2,s:18,r:0,o:1});
-  sel=gems.length-1;sync();draw();
+function addGem(type,img=null,meta={}){
+  const size=20;
+  gems.push({
+    type,
+    img,
+    imgSrc: meta.imgSrc || (img ? img.src : null),
+    libraryId: meta.libraryId || null,
+    name: meta.name || 'Gemma',
+    priceType: meta.priceType || type || 'swarovski',
+    x:canvas.clientWidth/2,
+    y:canvas.clientHeight/2,
+    size,r:0,opacity:1
+  });
+  selected=gems.length-1;
+  sync();draw();updatePrice();
 }
-document.querySelectorAll('.gem').forEach(b=>b.onclick=()=>addGem(b.dataset.type));
 
+function saveLibrary(){
+  localStorage.setItem('gabriSparkleGemLibrary', JSON.stringify(gemLibrary));
+}
+
+function loadLibrary(){
+  try{
+    const raw=localStorage.getItem('gabriSparkleGemLibrary');
+    gemLibrary=raw?JSON.parse(raw):[];
+  }catch{gemLibrary=[]}
+  renderLibrary();
+}
+
+function renderLibrary(){
+  const box=$('gemLibrary');
+  box.innerHTML='';
+  $('emptyLibrary').style.display=gemLibrary.length?'none':'block';
+
+  gemLibrary.forEach(item=>{
+    const wrap=document.createElement('div');
+    wrap.className='gemThumb';
+    wrap.title=item.name;
+
+    const img=document.createElement('img');
+    img.src=item.imgSrc;
+    img.alt=item.name;
+    img.onclick=()=>{
+      const full=new Image();
+      full.onload=()=>addGem('custom',full,{
+        imgSrc:item.imgSrc,
+        libraryId:item.id,
+        name:item.name,
+        priceType:item.priceType
+      });
+      full.src=item.imgSrc;
+    };
+
+    const label=document.createElement('div');
+    label.className='gemLabel';
+    label.textContent=item.name;
+
+    const del=document.createElement('button');
+    del.className='removeLib';
+    del.type='button';
+    del.textContent='×';
+    del.title='Rimuovi dalla libreria';
+    del.onclick=(e)=>{
+      e.stopPropagation();
+      if(confirm(`Rimuovere "${item.name}" dalla libreria?`)){
+        gemLibrary=gemLibrary.filter(x=>x.id!==item.id);
+        saveLibrary();renderLibrary();
+      }
+    };
+
+    wrap.append(img,label,del);
+    box.appendChild(wrap);
+  });
+}
+
+function removeWhite(img,cb){
+  const c=document.createElement('canvas');
+  const max=900,sc=Math.min(1,max/img.width,max/img.height);
+  c.width=Math.max(1,Math.round(img.width*sc));c.height=Math.max(1,Math.round(img.height*sc));
+  const x=c.getContext('2d');x.drawImage(img,0,0,c.width,c.height);
+  try{
+    const d=x.getImageData(0,0,c.width,c.height),a=d.data;
+    for(let i=0;i<a.length;i+=4){
+      const r=a[i],g=a[i+1],b=a[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+      if(mx>242 && mx-mn<18)a[i+3]=0;
+      else if(mx>224 && mx-mn<28)a[i+3]=Math.min(a[i+3],Math.max(0,(242-mx)*16));
+    }
+    x.putImageData(d,0,0);
+    const out=new Image();out.onload=()=>cb(out);out.src=c.toDataURL('image/png')
+  }catch{cb(img)}
+}
 $('customGemInput').addEventListener('change',e=>{
-  const f=e.target.files && e.target.files[0];
-  if(!f)return;
-  const url=URL.createObjectURL(f),im=new Image();
-  im.onload=()=>{URL.revokeObjectURL(url);addGem('custom',im)};
-  im.src=url;
+  const f=e.target.files&&e.target.files[0];
+  readImageFile(f,img=>removeWhite(img,out=>{
+    pendingGemData=out.src;
+    $('newGemName').value=(f.name||'Gemma').replace(/\.[^.]+$/,'');
+    $('newGemType').value='swarovski';
+    $('newGemForm').style.display='block';
+  }));
   e.target.value='';
 });
 
-c.addEventListener('pointerdown',e=>{
-  const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-  sel=-1;
-  for(let i=gems.length-1;i>=0;i--){
-    const g=gems[i];
-    if(Math.hypot(x-g.x,y-g.y)<Math.max(10,g.s*.8)){sel=i;drag={dx:x-g.x,dy:y-g.y};break}
-  }
-  sync();draw();
-});
-c.addEventListener('pointermove',e=>{
-  if(sel<0||!drag)return;
-  const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,g=gems[sel];
-  g.x=x-drag.dx;g.y=y-drag.dy;draw();
-});
-c.addEventListener('pointerup',()=>drag=null);
-c.addEventListener('pointercancel',()=>drag=null);
-
-function sync(){
-  const g=gems[sel];
-  $('size').disabled=!g;$('rot').disabled=!g;$('opa').disabled=!g;
-  if(g){$('size').value=g.s;$('rot').value=g.r;$('opa').value=Math.round(g.o*100)}
-  $('sizeText').textContent=g?`${Math.round(g.s)} px`:'—';
-  $('rotText').textContent=g?`${Math.round(g.r)}°`:'—';
-  $('opaText').textContent=g?`${Math.round(g.o*100)}%`:'—';
-}
-$('size').oninput=()=>{if(sel<0)return;gems[sel].s=+$('size').value;sync();draw()};
-$('rot').oninput=()=>{if(sel<0)return;gems[sel].r=+$('rot').value;sync();draw()};
-$('opa').oninput=()=>{if(sel<0)return;gems[sel].o=+$('opa').value/100;sync();draw()};
-
-$('dup').onclick=()=>{if(sel<0)return;const g=gems[sel];gems.push({...g,x:g.x+20,y:g.y+20});sel=gems.length-1;sync();draw()};
-$('del').onclick=()=>{if(sel<0)return;gems.splice(sel,1);sel=-1;sync();draw()};
-$('clear').onclick=()=>{gems=[];sel=-1;sync();draw()};
-$('fit').onclick=fit;
-$('zin').onclick=()=>{if(!img)return;imgScale*=1.12;draw()};
-$('zout').onclick=()=>{if(!img)return;imgScale/=1.12;draw()};
-
-function basePrice(){return (+$('customPrice').value||0) || (+$('price').value||0)}
-function updatePrice(){
-  const b=basePrice(),o=b*discount/100,t=b-o;
-  $('base').textContent='€'+b.toFixed(0);
-  $('off').textContent='−€'+o.toFixed(0);
-  $('total').textContent='€'+t.toFixed(0);
-}
-$('price').onchange=updatePrice;$('customPrice').oninput=updatePrice;
-document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{
-  discount=+b.dataset.d;
-  document.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('active',x===b));
-  updatePrice();
-});
-
-$('export').onclick=()=>{
-  const old=sel;sel=-1;draw();
-  const a=document.createElement('a');a.download='Gabri_Sparkle_progetto.png';a.href=c.toDataURL('image/png',1);a.click();
-  sel=old;draw();
+$('saveNewGem').onclick=()=>{
+  if(!pendingGemData)return;
+  const name=$('newGemName').value.trim()||'Gemma';
+  const priceType=$('newGemType').value;
+  gemLibrary.push({
+    id:'g_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    name,priceType,imgSrc:pendingGemData
+  });
+  saveLibrary();renderLibrary();
+  pendingGemData=null;
+  $('newGemForm').style.display='none';
 };
 
-sync();updatePrice();resize();
+$('cancelNewGem').onclick=()=>{
+  pendingGemData=null;
+  $('newGemForm').style.display='none';
+};
+
+canvas.addEventListener('pointerdown',e=>{
+  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  selected=-1;
+  for(let i=gems.length-1;i>=0;i--){
+    const g=gems[i];
+    if(Math.hypot(x-g.x,y-g.y)<Math.max(12,g.size*.8)){selected=i;drag={dx:x-g.x,dy:y-g.y};break}
+  }
+  sync();draw();
+  try{canvas.setPointerCapture(e.pointerId)}catch{}
+});
+canvas.addEventListener('pointermove',e=>{
+  if(selected<0||!drag)return;
+  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,g=gems[selected];
+  g.x=x-drag.dx;g.y=y-drag.dy;draw()
+});
+canvas.addEventListener('pointerup',()=>drag=null);
+canvas.addEventListener('pointercancel',()=>drag=null);
+
+function sync(){
+  const g=gems[selected];
+  $('sizeRange').disabled=!g;$('rotRange').disabled=!g;$('opaRange').disabled=!g;
+  if(g){$('sizeRange').value=g.size;$('rotRange').value=g.r;$('opaRange').value=Math.round(g.opacity*100)}
+  $('sizeVal').textContent=g?`${Math.round(g.size)} px`:'—';
+  $('rotVal').textContent=g?`${Math.round(g.r)}°`:'—';
+  $('opaVal').textContent=g?`${Math.round(g.opacity*100)}%`:'—';
+}
+$('sizeRange').oninput=()=>{if(selected<0)return;gems[selected].size=+$('sizeRange').value;sync();draw()};
+$('rotRange').oninput=()=>{if(selected<0)return;gems[selected].r=+$('rotRange').value;sync();draw()};
+$('opaRange').oninput=()=>{if(selected<0)return;gems[selected].opacity=+$('opaRange').value/100;sync();draw()};
+
+$('duplicateBtn').onclick=()=>{if(selected<0)return;const g=gems[selected];gems.push({...g,x:g.x+22,y:g.y+22});selected=gems.length-1;sync();draw();updatePrice()};
+$('deleteBtn').onclick=()=>{if(selected<0)return;gems.splice(selected,1);selected=-1;sync();draw();updatePrice()};
+$('clearBtn').onclick=()=>{gems=[];selected=-1;sync();draw();updatePrice()};
+
+$('fitBtn').onclick=fitPhoto;
+$('zoomIn').onclick=()=>{if(!photo)return;photoScale*=1.12;draw()};
+$('zoomOut').onclick=()=>{if(!photo)return;photoScale/=1.12;draw()};
+$('resetView').onclick=fitPhoto;
+
+function swarovskiPrice(n){
+  if(n<=0)return 0;
+  if(n===1)return 60;
+  if(n===2)return 80;
+  if(n===3)return 100;
+  if(n===4)return 120;
+  // Oltre 4: prosegue a +€20 per gemma come stima trasparente.
+  // Le composizioni Window / dente pieno hanno invece il loro prezzo dedicato.
+  return 120+(n-4)*20;
+}
+
+function specialPrice(n){
+  if(n<=0)return 0;
+  if(n===1)return 70;
+  if(n===2)return 100;
+  return 100+(n-2)*30;
+}
+
+function goldPrice(n){
+  if(n<=0)return 0;
+  if(n===1)return 140;
+  if(n===2)return 160;
+  return 160+(n-2)*80;
+}
+
+function butterflyPrice(n){
+  return n*120;
+}
+
+function priceData(){
+  const mode=$('projectMode').value;
+  const specialProjects={
+    window1:{price:150,label:'Progetto Window'},
+    window2:{price:200,label:'2 denti Window'},
+    full1:{price:180,label:'Dente pieno'},
+    full2:{price:230,label:'2 denti pieni'}
+  };
+  if(mode!=='auto'){
+    const p=specialProjects[mode];
+    return {base:p.price, lines:[`${p.label}: €${p.price}`]};
+  }
+
+  const counts={swarovski:0,special:0,gold:0,butterfly:0};
+  gems.forEach(g=>{
+    const t=g.priceType||'swarovski';
+    if(counts[t]===undefined)counts.swarovski++;
+    else counts[t]++;
+  });
+
+  const lines=[];
+  let base=0;
+  if(counts.swarovski){
+    const p=swarovskiPrice(counts.swarovski); base+=p;
+    lines.push(`${counts.swarovski} Swarovski: €${p}`);
+  }
+  if(counts.special){
+    const p=specialPrice(counts.special); base+=p;
+    lines.push(`${counts.special} stella/cuore: €${p}`);
+  }
+  if(counts.gold){
+    const p=goldPrice(counts.gold); base+=p;
+    lines.push(`${counts.gold} oro: €${p}`);
+  }
+  if(counts.butterfly){
+    const p=butterflyPrice(counts.butterfly); base+=p;
+    lines.push(`${counts.butterfly} farfalla: €${p}`);
+  }
+  return {base,lines};
+}
+
+function updatePrice(){
+  const data=priceData();
+  const base=data.base,off=base*discount/100,total=base-off;
+  $('basePrice').textContent='€'+base.toFixed(0);
+  $('discountText').textContent='−€'+off.toFixed(0);
+  $('totalPrice').textContent='€'+total.toFixed(0);
+  $('priceBreakdown').innerHTML=data.lines.length
+    ? data.lines.map(x=>`<div>• ${x}</div>`).join('')
+    : 'Aggiungi gemme per calcolare il preventivo.';
+}
+
+$('projectMode').onchange=updatePrice;
+document.querySelectorAll('[data-discount]').forEach(b=>b.onclick=()=>{
+  discount=+b.dataset.discount;
+  document.querySelectorAll('[data-discount]').forEach(x=>x.classList.toggle('active',x===b));
+  updatePrice()
+});
+
+$('savePng').onclick=()=>{
+  const old=selected;selected=-1;draw();
+  const a=document.createElement('a');
+  a.download=`Gabri_Sparkle_${($('clientName').value||'progetto').replace(/\s+/g,'_')}.png`;
+  a.href=canvas.toDataURL('image/png',1);a.click();
+  selected=old;draw()
+};
+
+loadLibrary();sync();updatePrice();resize();
 </script>
 </body>
 </html>
