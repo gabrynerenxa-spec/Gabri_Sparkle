@@ -108,6 +108,7 @@ input[type=range]{width:100%;accent-color:var(--wine)}
 #dropZone.drag{background:#f8e7ea;border-color:var(--wine)}
 .photoActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #photoStatus{margin-top:8px;font-size:11px;color:var(--muted)}
+.stageHint{position:absolute;right:14px;bottom:14px;padding:7px 10px;border-radius:999px;background:rgba(255,250,247,.86);font-size:11px;color:#50383e;pointer-events:none}
 @media(max-width:980px){
   .layout{grid-template-columns:1fr}
   .panel,.panel.right{border:0}
@@ -175,13 +176,22 @@ input[type=range]{width:100%;accent-color:var(--wine)}
     <div class="card">
       <h3>Vista sorriso</h3>
       <div class="row">
-        <button id="fitBtn">Adatta</button>
+        <button id="fitBtn">Adatta foto</button>
         <button id="zoomIn">Zoom +</button>
         <button id="zoomOut">Zoom −</button>
-        <button id="resetView">Reset</button>
+        <button id="resetView">Reset foto</button>
+      </div>
+      <div style="height:8px"></div>
+      <div class="row">
+        <button id="archLeft">Arcata ←</button>
+        <button id="archCenter">Centro</button>
+        <button id="archRight">Arcata →</button>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        Senza foto viene mostrata un'arcata 3D simulata. Puoi ruotarla a destra e sinistra.
       </div>
       <div class="warning" style="margin-top:10px">
-        L'effetto 3D da una sola foto è solo una simulazione estetica. Per un modello 3D reale servono scansione intraorale o STL.
+        Per una vera arcata 3D anatomica e ruotabile in tutte le direzioni servirà poi caricare un modello STL/GLB.
       </div>
     </div>
   </aside>
@@ -193,6 +203,7 @@ input[type=range]{width:100%;accent-color:var(--wine)}
         <div class="pill">Trascina le gemme sul dente</div>
         <div class="pill">Gabri Sparkle Studio</div>
       </div>
+      <div class="stageHint" id="stageHint">Arcata 3D simulata</div>
     </div>
     <div class="toolbar">
       <button id="duplicateBtn">Duplica</button>
@@ -239,7 +250,10 @@ input[type=range]{width:100%;accent-color:var(--wine)}
       </div>
 
       <div id="priceBreakdown" class="muted" style="margin:10px 0">
-        Aggiungi gemme per calcolare il preventivo.
+        Aggiungi una gemma: il totale si aggiorna automaticamente.
+      </div>
+      <div class="muted" style="margin:8px 0 12px">
+        Listino: Swarovski 1 €60 · 2 €80 · 3 €100 · 4 €120 · Stella/Cuore 1 €70 · 2 €100 · Oro 1 €140 · 2 €160 · Farfalla €120.
       </div>
 
       <div class="discountBtns">
@@ -262,8 +276,10 @@ const canvas=$('canvas'),ctx=canvas.getContext('2d');
 let DPR=Math.max(1,Math.min(2,window.devicePixelRatio||1));
 let photo=null,photoScale=1,photoX=0,photoY=0;
 let gems=[],selected=-1,drag=null,discount=0;
+let archDrag=null;
 let gemLibrary=[];
 let pendingGemData=null;
+let archYaw=0;
 
 function resize(){
   const r=canvas.getBoundingClientRect();
@@ -304,7 +320,7 @@ function fitPhoto(){
 
 $('photoInput').addEventListener('change',e=>{
   const f=e.target.files && e.target.files[0];
-  readImageFile(f,img=>{photo=img;fitPhoto()});
+  readImageFile(f,img=>{photo=img;$('stageHint').textContent='Foto cliente';fitPhoto()});
   e.target.value='';
 });
 
@@ -313,21 +329,115 @@ const dz=$('dropZone');
 ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));
 dz.addEventListener('drop',e=>{
   const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  readImageFile(f,img=>{photo=img;fitPhoto()});
+  readImageFile(f,img=>{photo=img;$('stageHint').textContent='Foto cliente';fitPhoto()});
 });
 
-$('removePhoto').onclick=()=>{photo=null;showStatus('Nessuna foto caricata.');draw()};
+$('removePhoto').onclick=()=>{photo=null;$('stageHint').textContent='Arcata 3D simulata';showStatus('Nessuna foto caricata.');draw()};
+
+function roundedToothPath(x,y,w,h,r=10){
+  const k=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x-w/2+k,y-h/2);
+  ctx.quadraticCurveTo(x-w/2,y-h/2,x-w/2,y-h/2+k);
+  ctx.lineTo(x-w/2,y+h/2-k);
+  ctx.quadraticCurveTo(x-w/2,y+h/2,x-w/2+k,y+h/2);
+  ctx.lineTo(x+w/2-k,y+h/2);
+  ctx.quadraticCurveTo(x+w/2,y+h/2,x+w/2,y+h/2-k);
+  ctx.lineTo(x+w/2,y-h/2+k);
+  ctx.quadraticCurveTo(x+w/2,y-h/2,x+w/2-k,y-h/2);
+  ctx.closePath();
+}
+
+function drawTooth3D(x,y,w,h,rot,depth=1){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rot);
+
+  // shadow
+  ctx.fillStyle='rgba(0,0,0,.22)';
+  roundedToothPath(5*depth,7*depth,w,h,Math.min(12,w*.2));
+  ctx.fill();
+
+  // body gradient
+  const grad=ctx.createLinearGradient(-w*.45,-h*.45,w*.45,h*.45);
+  grad.addColorStop(0,'#fffdfa');
+  grad.addColorStop(.38,'#f5eee8');
+  grad.addColorStop(.7,'#ddd2cc');
+  grad.addColorStop(1,'#b9aaa6');
+  ctx.fillStyle=grad;
+  roundedToothPath(0,0,w,h,Math.min(12,w*.2));
+  ctx.fill();
+
+  // highlight
+  const shine=ctx.createRadialGradient(-w*.18,-h*.2,1,-w*.15,-h*.18,w*.52);
+  shine.addColorStop(0,'rgba(255,255,255,.9)');
+  shine.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=shine;
+  roundedToothPath(0,0,w*.86,h*.84,Math.min(10,w*.18));
+  ctx.fill();
+
+  // cervical / edge shading
+  ctx.strokeStyle='rgba(117,93,98,.20)';
+  ctx.lineWidth=1;
+  roundedToothPath(0,0,w,h,Math.min(12,w*.2));
+  ctx.stroke();
+
+  ctx.restore();
+}
 
 function drawPlaceholder(w,h){
   ctx.fillStyle='#171215';ctx.fillRect(0,0,w,h);
-  const g=ctx.createRadialGradient(w*.5,h*.45,20,w*.5,h*.45,w*.55);
-  g.addColorStop(0,'rgba(181,42,60,.18)');g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='rgba(255,244,240,.28)';
-  [-2,-1,0,1,2].forEach((i)=>{
-    const s=i===0?1.14:(Math.abs(i)===1?1.08:1);
-    ctx.beginPath();ctx.ellipse(w/2+i*90,h/2,52*s,73*s,0,0,Math.PI*2);ctx.fill()
-  })
+  const bg=ctx.createRadialGradient(w*.5,h*.44,20,w*.5,h*.44,w*.58);
+  bg.addColorStop(0,'rgba(181,42,60,.20)');
+  bg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+
+  const yaw=Math.max(-1,Math.min(1,archYaw));
+  const cx=w*.5+yaw*w*.035;
+  const upperY=h*.43;
+  const lowerY=h*.60;
+  const count=10;
+
+  // gums
+  ctx.save();
+  ctx.strokeStyle='rgba(195,112,127,.35)';
+  ctx.lineWidth=18;
+  ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.arc(cx,upperY+24,w*.30,Math.PI*1.12,Math.PI*1.88);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx,lowerY-20,w*.29,Math.PI*.12,Math.PI*.88);
+  ctx.stroke();
+  ctx.restore();
+
+  // back teeth first for depth
+  const teeth=[];
+  for(let i=0;i<count;i++){
+    const t=i/(count-1);
+    const side=(t-.5)*2;
+    const a=side*1.05;
+    const persp=1-(Math.abs(side)*.22);
+    const yawScale=1-(Math.max(0,-side*yaw)*.24);
+    const scale=persp*yawScale;
+
+    const x=cx+Math.sin(a)*w*.31 - yaw*side*w*.055;
+    const z=Math.cos(a);
+    const upY=upperY - z*24 + Math.abs(side)*10;
+    const loY=lowerY + z*20 - Math.abs(side)*7;
+    const tw=(i===4||i===5?58:50)*scale;
+    const th=(i===4||i===5?78:68)*scale;
+    teeth.push({x,upY,loY,tw,th,rot:-side*.12-yaw*.05,depth:z,side});
+  }
+  teeth.sort((a,b)=>a.depth-b.depth);
+  teeth.forEach(t=>drawTooth3D(t.x,t.upY,t.tw,t.th,t.rot,1+t.depth*.2));
+  teeth.forEach(t=>drawTooth3D(t.x,t.loY,t.tw*.94,t.th*.72,-t.rot,1+t.depth*.15));
+
+  // center line / perspective cue
+  ctx.strokeStyle='rgba(255,255,255,.12)';
+  ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(cx,upperY-115);ctx.lineTo(cx,lowerY+95);ctx.stroke();
+  ctx.setLineDash([]);
 }
 
 function draw(){
@@ -398,7 +508,13 @@ function addGem(type,img=null,meta={}){
 }
 
 function saveLibrary(){
-  localStorage.setItem('gabriSparkleGemLibrary', JSON.stringify(gemLibrary));
+  try{
+    localStorage.setItem('gabriSparkleGemLibrary', JSON.stringify(gemLibrary));
+    return true;
+  }catch(err){
+    console.warn('Salvataggio libreria non riuscito',err);
+    return false;
+  }
 }
 
 function loadLibrary(){
@@ -422,7 +538,7 @@ function renderLibrary(){
     const img=document.createElement('img');
     img.src=item.imgSrc;
     img.alt=item.name;
-    img.onclick=()=>{
+    wrap.onclick=()=>{
       const full=new Image();
       full.onload=()=>addGem('custom',full,{
         imgSrc:item.imgSrc,
@@ -457,7 +573,7 @@ function renderLibrary(){
 
 function removeWhite(img,cb){
   const c=document.createElement('canvas');
-  const max=900,sc=Math.min(1,max/img.width,max/img.height);
+  const max=320,sc=Math.min(1,max/img.width,max/img.height);
   c.width=Math.max(1,Math.round(img.width*sc));c.height=Math.max(1,Math.round(img.height*sc));
   const x=c.getContext('2d');x.drawImage(img,0,0,c.width,c.height);
   try{
@@ -486,11 +602,24 @@ $('saveNewGem').onclick=()=>{
   if(!pendingGemData)return;
   const name=$('newGemName').value.trim()||'Gemma';
   const priceType=$('newGemType').value;
-  gemLibrary.push({
+  const item={
     id:'g_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
     name,priceType,imgSrc:pendingGemData
+  };
+  gemLibrary.push(item);
+  const persisted=saveLibrary();
+  renderLibrary();
+  const full=new Image();
+  full.onload=()=>addGem('custom',full,{
+    imgSrc:item.imgSrc,
+    libraryId:item.id,
+    name:item.name,
+    priceType:item.priceType
   });
-  saveLibrary();renderLibrary();
+  full.src=item.imgSrc;
+  if(!persisted){
+    alert('Gemma aggiunta, ma il browser non ha spazio per salvarla in modo permanente. Prova con immagini più leggere.');
+  }
   pendingGemData=null;
   $('newGemForm').style.display='none';
 };
@@ -507,16 +636,26 @@ canvas.addEventListener('pointerdown',e=>{
     const g=gems[i];
     if(Math.hypot(x-g.x,y-g.y)<Math.max(12,g.size*.8)){selected=i;drag={dx:x-g.x,dy:y-g.y};break}
   }
+  if(selected<0 && !photo){
+    archDrag={startX:x,startYaw:archYaw};
+  }
   sync();draw();
   try{canvas.setPointerCapture(e.pointerId)}catch{}
 });
 canvas.addEventListener('pointermove',e=>{
-  if(selected<0||!drag)return;
-  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,g=gems[selected];
-  g.x=x-drag.dx;g.y=y-drag.dy;draw()
+  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(selected>=0 && drag){
+    const g=gems[selected];
+    g.x=x-drag.dx;g.y=y-drag.dy;draw();
+    return;
+  }
+  if(archDrag && !photo){
+    archYaw=Math.max(-1,Math.min(1,archDrag.startYaw+(x-archDrag.startX)/220));
+    draw();
+  }
 });
-canvas.addEventListener('pointerup',()=>drag=null);
-canvas.addEventListener('pointercancel',()=>drag=null);
+canvas.addEventListener('pointerup',()=>{drag=null;archDrag=null});
+canvas.addEventListener('pointercancel',()=>{drag=null;archDrag=null});
 
 function sync(){
   const g=gems[selected];
@@ -539,93 +678,127 @@ $('zoomIn').onclick=()=>{if(!photo)return;photoScale*=1.12;draw()};
 $('zoomOut').onclick=()=>{if(!photo)return;photoScale/=1.12;draw()};
 $('resetView').onclick=fitPhoto;
 
-function swarovskiPrice(n){
-  if(n<=0)return 0;
-  if(n===1)return 60;
-  if(n===2)return 80;
-  if(n===3)return 100;
-  if(n===4)return 120;
-  // Oltre 4: prosegue a +€20 per gemma come stima trasparente.
-  // Le composizioni Window / dente pieno hanno invece il loro prezzo dedicato.
-  return 120+(n-4)*20;
+$('archLeft').onclick=()=>{if(photo)return;archYaw=Math.max(-1,archYaw-.22);draw()};
+$('archRight').onclick=()=>{if(photo)return;archYaw=Math.min(1,archYaw+.22);draw()};
+$('archCenter').onclick=()=>{if(photo)return;archYaw=0;draw()};
+
+
+const PRICE_RULES = {
+  swarovski: {1:60, 2:80, 3:100, 4:120},
+  special:   {1:70, 2:100},
+  gold:      {1:140, 2:160},
+  butterfly: {1:120}
+};
+
+function tierPrice(type,n){
+  if(n<=0) return 0;
+  const table=PRICE_RULES[type]||{};
+  if(table[n]!=null) return table[n];
+
+  // Estensioni automatiche oltre il listino stampato:
+  // Swarovski: +€20 per ogni gemma oltre la quarta
+  if(type==='swarovski') return 120 + (n-4)*20;
+  // Stella/cuore: +€30 oltre la seconda
+  if(type==='special') return 100 + (n-2)*30;
+  // Oro: +€80 oltre la seconda
+  if(type==='gold') return 160 + (n-2)*80;
+  // Farfalla: €120 ciascuna
+  if(type==='butterfly') return n*120;
+
+  return 0;
 }
 
-function specialPrice(n){
-  if(n<=0)return 0;
-  if(n===1)return 70;
-  if(n===2)return 100;
-  return 100+(n-2)*30;
+function getGemCounts(){
+  const counts={swarovski:0,special:0,gold:0,butterfly:0};
+  for(const g of gems){
+    const t=(g && g.priceType) ? g.priceType : 'swarovski';
+    if(!(t in counts)) counts.swarovski++;
+    else counts[t]++;
+  }
+  return counts;
 }
 
-function goldPrice(n){
-  if(n<=0)return 0;
-  if(n===1)return 140;
-  if(n===2)return 160;
-  return 160+(n-2)*80;
-}
+function calculateQuote(){
+  const modeEl=$('projectMode');
+  const mode=modeEl ? modeEl.value : 'auto';
 
-function butterflyPrice(n){
-  return n*120;
-}
-
-function priceData(){
-  const mode=$('projectMode').value;
-  const specialProjects={
-    window1:{price:150,label:'Progetto Window'},
+  const fixed={
+    window1:{price:150,label:'Progetto Window (fino a 4 gemme)'},
     window2:{price:200,label:'2 denti Window'},
     full1:{price:180,label:'Dente pieno'},
     full2:{price:230,label:'2 denti pieni'}
   };
-  if(mode!=='auto'){
-    const p=specialProjects[mode];
-    return {base:p.price, lines:[`${p.label}: €${p.price}`]};
+
+  if(mode!=='auto' && fixed[mode]){
+    return {
+      base: fixed[mode].price,
+      lines:[`${fixed[mode].label}: €${fixed[mode].price}`]
+    };
   }
 
-  const counts={swarovski:0,special:0,gold:0,butterfly:0};
-  gems.forEach(g=>{
-    const t=g.priceType||'swarovski';
-    if(counts[t]===undefined)counts.swarovski++;
-    else counts[t]++;
-  });
-
-  const lines=[];
+  const c=getGemCounts();
   let base=0;
-  if(counts.swarovski){
-    const p=swarovskiPrice(counts.swarovski); base+=p;
-    lines.push(`${counts.swarovski} Swarovski: €${p}`);
+  const lines=[];
+
+  const labels={
+    swarovski:'Swarovski',
+    special:'Stella/Cuore',
+    gold:'Oro',
+    butterfly:'Farfalla'
+  };
+
+  for(const type of ['swarovski','special','gold','butterfly']){
+    const n=c[type];
+    if(!n) continue;
+    const p=tierPrice(type,n);
+    base += p;
+    lines.push(`${n} × ${labels[type]} = €${p}`);
   }
-  if(counts.special){
-    const p=specialPrice(counts.special); base+=p;
-    lines.push(`${counts.special} stella/cuore: €${p}`);
-  }
-  if(counts.gold){
-    const p=goldPrice(counts.gold); base+=p;
-    lines.push(`${counts.gold} oro: €${p}`);
-  }
-  if(counts.butterfly){
-    const p=butterflyPrice(counts.butterfly); base+=p;
-    lines.push(`${counts.butterfly} farfalla: €${p}`);
-  }
+
   return {base,lines};
 }
 
 function updatePrice(){
-  const data=priceData();
-  const base=data.base,off=base*discount/100,total=base-off;
-  $('basePrice').textContent='€'+base.toFixed(0);
-  $('discountText').textContent='−€'+off.toFixed(0);
-  $('totalPrice').textContent='€'+total.toFixed(0);
-  $('priceBreakdown').innerHTML=data.lines.length
-    ? data.lines.map(x=>`<div>• ${x}</div>`).join('')
-    : 'Aggiungi gemme per calcolare il preventivo.';
+  const result=calculateQuote();
+  const base=Number(result.base)||0;
+  const off=Math.round((base*discount/100)*100)/100;
+  const total=Math.max(0,base-off);
+
+  const baseEl=$('basePrice');
+  const discEl=$('discountText');
+  const totalEl=$('totalPrice');
+  const breakdown=$('priceBreakdown');
+
+  if(baseEl) baseEl.textContent='€'+base.toFixed(0);
+  if(discEl) discEl.textContent='−€'+off.toFixed(0);
+  if(totalEl) totalEl.textContent='€'+total.toFixed(0);
+
+  if(breakdown){
+    breakdown.innerHTML=result.lines.length
+      ? result.lines.map(x=>`<div style="margin:3px 0">• ${x}</div>`).join('')
+      : '<div>Aggiungi una gemma: il totale si aggiorna automaticamente.</div>';
+  }
 }
 
-$('projectMode').onchange=updatePrice;
-document.querySelectorAll('[data-discount]').forEach(b=>b.onclick=()=>{
-  discount=+b.dataset.discount;
-  document.querySelectorAll('[data-discount]').forEach(x=>x.classList.toggle('active',x===b));
-  updatePrice()
+if($('projectMode')){
+  $('projectMode').addEventListener('change',updatePrice);
+}
+
+document.querySelectorAll('[data-discount]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    discount=Number(b.dataset.discount)||0;
+    document.querySelectorAll('[data-discount]').forEach(x=>x.classList.toggle('active',x===b));
+    updatePrice();
+  });
 });
+
+// Ridondanza voluta: se cambia il numero di gemme, il preventivo viene
+// ricalcolato anche nel rendering, così non può restare fermo a €0.
+const originalDraw = draw;
+draw = function(){
+  originalDraw();
+  updatePrice();
+};
 
 $('savePng').onclick=()=>{
   const old=selected;selected=-1;draw();
@@ -635,7 +808,7 @@ $('savePng').onclick=()=>{
   selected=old;draw()
 };
 
-loadLibrary();sync();updatePrice();resize();
+loadLibrary();sync();resize();updatePrice();
 </script>
 </body>
 </html>
